@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import timeFromatter from "./utilities/timeformatter";
 import Comment from "./components/Comment";
+import CommentForm from "./components/CommentForm";
 
 interface Params {
   id?: string;
@@ -12,6 +13,7 @@ interface Params {
 const Post: React.FC = () => {
   const params: Params = useParams();
   const [post, setPost] = useState<IPost>();
+  const [showCommentForm, setCommentForm] = useState<boolean>(false);
 
   const getPost = async () => {
     try {
@@ -38,7 +40,7 @@ const Post: React.FC = () => {
         `http://localhost:3000/api/posts/${params.id as string}/comments`
       );
       const commentData = (await response.json()) as IComment[];
-      setComments(commentData)
+      setComments(commentData);
     } catch (err) {
       console.error(err);
     }
@@ -59,16 +61,26 @@ const Post: React.FC = () => {
           <div className="dateP">Published: {timeFromatter(post.time)}</div>
         </div>
       )}
+      <button
+        onClick={() => {
+          setCommentForm(showCommentForm ? false : true);
+        }}
+      >
+        {showCommentForm ? "Hide" : "Add new comment"}
+      </button>
+      {showCommentForm && <CommentForm postId= {params.id} />}
       {comments &&
         comments.map((comment) => {
-          return <Comment
-            key={comment._id}
-            text={comment.text}
-            time={comment.time}
-            author={comment.author}
-            post={comment.post}
-            _id={comment._id}
-          />;
+          return (
+            <Comment
+              key={comment._id}
+              text={comment.text}
+              time={comment.time}
+              author={comment.author}
+              post={comment.post}
+              _id={comment._id}
+            />
+          );
         })}
     </>
   );
