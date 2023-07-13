@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import timeFromatter from "./utilities/timeformatter";
 import Comment from "./components/Comment";
 import CommentForm from "./components/CommentForm";
+import './assets/styles/post.css';
 
 interface Params {
   id?: string;
@@ -52,8 +53,19 @@ const Post: React.FC = () => {
     });
   }, []);
 
+  const onCommentAdded = async () => {
+    try {
+      await getComments();
+      setCommentForm(false)
+    } catch (err) {
+      console.error(err);
+    }
+
+    
+  };
+
   return (
-    <>
+    <div className="mainPost">
       {post && (
         <div className="post">
           <div className="titleP">{post.title}</div>
@@ -61,6 +73,7 @@ const Post: React.FC = () => {
           <div className="dateP">Published: {timeFromatter(post.time)}</div>
         </div>
       )}
+      <a href="/">go back</a>
       <button
         onClick={() => {
           setCommentForm(showCommentForm ? false : true);
@@ -68,7 +81,9 @@ const Post: React.FC = () => {
       >
         {showCommentForm ? "Hide" : "Add new comment"}
       </button>
-      {showCommentForm && <CommentForm postId= {params.id} />}
+      {showCommentForm && (
+        <CommentForm postId={params.id} onCommentAdded={onCommentAdded} />
+      )}
       {comments &&
         comments.map((comment) => {
           return (
@@ -82,7 +97,7 @@ const Post: React.FC = () => {
             />
           );
         })}
-    </>
+    </div>
   );
 };
 

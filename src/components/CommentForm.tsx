@@ -1,9 +1,10 @@
 import { useState, ChangeEvent, FormEvent } from "react";
+import '../assets/styles/form.css'
 
 interface postIdI {
   postId?: string;
+  onCommentAdded: () => Promise<void>;
 }
-
 
 const CommentForm: React.FC<postIdI> = (props) => {
   const [authorValue, setAuthorValue] = useState<string>("");
@@ -17,10 +18,10 @@ const CommentForm: React.FC<postIdI> = (props) => {
     setTextValue(e.target.value);
   };
 
-  const submitHandler = async (e: FormEvent): Promise<void> => {
+  const submitHandler = (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(
+      fetch(
         `http://localhost:3000/api/posts/${props.postId as string}/comments`,
         {
           method: "POST",
@@ -29,14 +30,24 @@ const CommentForm: React.FC<postIdI> = (props) => {
           },
           body: JSON.stringify({ text: textValue, author: authorValue }),
         }
-      );
-      if (response.ok) {
-        console.log("Form submitted correctly");
-        setAuthorValue("");
-        setTextValue("");
-      } else {
-        console.error("Form submission failed");
-      }
+      )
+        .then(async (response) => {
+          if (response.ok) {
+            console.log("Form submitted correctly");
+            setAuthorValue("");
+            setTextValue("");
+            try {
+              await props.onCommentAdded();
+            } catch (err) {
+              console.error(err);
+            }
+          } else {
+            console.error("Form submission failed");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     } catch (err) {
       console.error(err);
     }
@@ -61,7 +72,7 @@ const CommentForm: React.FC<postIdI> = (props) => {
           onChange={handleTextOnChange}
         />
         <button type="submit">Add comment</button>
-      </form> 
+      </form>
     </>
   );
 };
