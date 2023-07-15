@@ -8,7 +8,7 @@ const App: React.FC = () => {
   const [posts, setPosts ] = useState<IPost[]>()
   const getPosts = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/posts");
+      const response = await fetch("http://localhost:3000/api/postspublished");
       const postData = await response.json() as IPost[];
       setPosts(postData)
     } catch (err) {
